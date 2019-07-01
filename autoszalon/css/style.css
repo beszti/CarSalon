@@ -1,0 +1,112 @@
+body{
+	background-color: #4169E1;
+	height: 100%;
+	width:auto;
+	margin:0px;
+	padding:0px;
+}
+.row{
+	height: auto;
+	width:auto;
+}
+#login{
+	width: auto;
+	height: auto;
+	background-image: url('../img/mercedes.jpg');
+	background-repeat: no-repeat;
+	background-position: center 80%;
+	background-size: cover;
+}
+.login-form{
+	width: auto;
+	height: auto;
+	padding-top: 10%;
+	padding-bottom: 15%;
+}
+.login-title{
+	color: #fafafa;
+	margin:0px;
+	padding-left:37.5%;
+}
+ul{
+	margin: 0px;
+	list-style-type: none;
+	overflow: hidden;
+}
+li{
+	float: left;
+}  
+.horizontal-navbar{
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 16px;
+	text-decoration: none;
+}
+#navbar{
+	background-color:#191970;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+.mainTitle{
+	color: yellow;
+}
+.customContainerDowner{
+	width:auto;
+	height: 500px;
+	margin-bottom: 5%;
+}
+.custom-inputField{
+	width: 25%;
+	height: 35px;
+	background-color: #f4f4f9;
+	color: #191970;
+	border-radius: 5px;
+	margin-left: 37.5%;
+	padding-left: 2%;
+	margin-top:3%;
+}
+::placeholder {
+	color: #191970;
+}
+.customButton{
+	background-color: #2F4F4F;
+	margin-bottom: 5px;
+	margin-top: 2%;
+	color: #fafafa;
+	border-radius: 5px;
+}
+.customButton:hover{
+	background-color: #696969;
+	margin-bottom: 5px;
+	color: #fafafa;
+}
+#leftSideMenu{
+	width:20%;
+	height:100%;
+	background-color: blue;
+	float:left;
+	overflow: hidden;
+}
+#mainScreenB, #mainScreenC, #mainScreenE{
+	width:80%;
+	height:100%;
+	float:left;
+	overflow: hidden;
+}
+#cars, #employees, #buyers{
+	color: white;
+}
+#logout{
+	margin-top:20px;
+}
+.searchInputsCar{
+	float:left;
+	overflow:hidden;
+	width:20%;
+}
+.searchInputsHuman{
+	float:left;
+	overflow:hidden;
+	width:25%;
+}
