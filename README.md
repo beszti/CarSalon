@@ -1,2 +1,2 @@
 # CarSalon
-jQuery Ajax + PHP, VueJS
+PHP + MySQL }- AJAX -{ VueJS + Axios
