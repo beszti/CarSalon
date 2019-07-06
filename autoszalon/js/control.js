@@ -44,26 +44,34 @@ var login = new Vue({
         login: function(){
             var user_name = $('#logName').val();
             var user_pw = $('#logPw').val();
-            $.ajax({
-                type:"POST",
-                url:'php/getUser.php',
-                dataType: "json",
-                data:{user_name:user_name, user_pw:user_pw},
-                success: function(data){
-                    if(data.status == 'ok'){
-                        navbar.setUser(data.result.fullname);
-                        console.log(data);
-                        $("#login").slideUp(2000, function(){
-                            login.hide();                            
-                            $("#navbar").slideDown(2000, function(){
-                                navbar.show();
-                            });
-                            $("#leftSideMenu").slideDown(2000, function(){
-                                menu.show();
-                            })
+
+            let formData = new FormData();
+            formData.append('user_name',user_name)
+            formData.append('user_pw', user_pw)
+
+            axios({
+                method: 'post',
+                url: 'php/getUser.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(resp){
+                if(resp.data.status == 'ok'){
+                    navbar.setUser(resp.data.result.fullname);
+                    console.log(resp.data);
+                    $("#login").slideUp(2000, function(){
+                        login.hide();                            
+                        $("#navbar").slideDown(2000, function(){
+                            navbar.show();
                         });
-                    }
+                        $("#leftSideMenu").slideDown(2000, function(){
+                            menu.show();
+                        })
+                    });
                 }
+            }).catch(function(error){
+                console.log(error+"");
             });
         }
     }
@@ -86,36 +94,51 @@ var menu = new Vue({
         hide: function() {
             this.vis = false
         },
-        getDatas: function(table_name){
+        getDatas: function(table_name, txt){
             console.log(table_name+"");
-            $.ajax({
-                type:"POST",
-                url:'php/getDatas.php',
-                dataType: "json",
-                data:{table_name:table_name, txt:""},
-                success: function(data){
-                    if(data.status == 'ok'){
-                        console.log(data);
-                        if(table_name == "cars"){
-                            screenB.hide();
-                            screenE.hide();
-                            screenC.show();
-                            screenC.setTableDatas(data);
-                        }
-                        if(table_name == "employees"){
-                            screenB.hide();
-                            screenC.hide();
-                            screenE.show();
-                            screenE.setTableDatas(data);
-                        }
-                        if(table_name == "buyers"){
-                            screenC.hide();
-                            screenE.hide();
-                            screenB.show();
-                            screenB.setTableDatas(data);
-                        }
+            let formData = new FormData();
+            formData.append('table_name',table_name)
+            formData.append('txt', txt)
+            axios({
+                method: 'post',
+                url: 'php/getDatas.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(resp){
+                if(resp.data.status == 'ok'){
+                    console.log(resp.data);
+                    if(table_name == "cars"){
+                        update.hide();
+                        update2.hide();
+                        update3.hide();
+                        screenB.hide();
+                        screenE.hide();
+                        screenC.show();
+                        screenC.setTableDatas(resp.data);
+                    }
+                    if(table_name == "employees"){
+                        update.hide();
+                        update2.hide();
+                        update3.hide();
+                        screenB.hide();
+                        screenC.hide();
+                        screenE.show();
+                        screenE.setTableDatas(resp.data);
+                    }
+                    if(table_name == "buyers"){
+                        update.hide();
+                        update2.hide();
+                        update3.hide();
+                        screenC.hide();
+                        screenE.hide();
+                        screenB.show();
+                        screenB.setTableDatas(resp.data);
                     }
                 }
+            }).catch(function(error){
+                console.log(error+"");
             });
         }
     }
@@ -125,7 +148,7 @@ var screenC = new Vue({
     el:"#mainScreenC",
     data:{
         vis: false,
-        carsItems: ["id", "band", "color", "employeeID", "price"],
+        items: ["id", "band", "color", "employeeID", "price"],
         tableDatas: []
     },
     methods: {
@@ -136,23 +159,36 @@ var screenC = new Vue({
             this.vis = false
         },
         setTableDatas: function(data){
-            this.tableDatas = data;
+            this.tableDatas = data
         },
-        Search: function(table_name, column, input){
+        search: function(table_name, column, input){
             var txt = " WHERE "+column+" LIKE '%" + $(input).val() + "%'";
-                $.ajax({
-                    url:"php/getDatas.php",
-                    method:"POST",
-                    dataType: "json",
-                    data:{table_name:table_name, txt:txt},
-                    success: function(data){
-                        if(data.status == 'ok'){
-                            console.log(table_name+""+txt+"");
-                            console.log(data);
-                            screenC.setTableDatas(data);
-                        }
-                    }
-                });
+            menu.getDatas(table_name, txt)
+        },
+        update: function(id){
+            update.show()
+            update.copyForUpdate(id, "cars")
+        },
+        insert: function(){
+            let formData = new FormData()
+            for (let index = 0; index < this.items.length; index++) {
+                var item = this.items[index];
+                formData.append(item, $("#"+item).val())
+            }
+                        
+            axios({
+                method: 'post',
+                url: 'php/addCars.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update.hide()
+                menu.getDatas("cars","")
+            }).catch(function(error){
+                console.log(error+"");
+            });
         }
     }
 })
@@ -161,7 +197,7 @@ var screenE = new Vue({
     el:"#mainScreenE",
     data:{
         vis: false,
-        emplItems: ["idE", "name", "phone", "address"],
+        items: ["idE", "name", "phone", "address"],
         tableDatas: []
     },
     methods: {
@@ -174,21 +210,34 @@ var screenE = new Vue({
         setTableDatas: function(data){
             this.tableDatas = data;
         },
-        Search: function(table_name, column, input){
+        search: function(table_name, column, input){
             var txt = " WHERE "+column+" LIKE '%" + $(input).val() + "%'";
-                $.ajax({
-                    url:"php/getDatas.php",
-                    method:"POST",
-                    dataType: "json",
-                    data:{table_name:table_name, txt:txt},
-                    success: function(data){
-                        if(data.status == 'ok'){
-                            console.log(table_name+""+txt+"");
-                            console.log(data);
-                            screenE.setTableDatas(data);
-                        }
-                    }
-                });
+            menu.getDatas(table_name, txt)
+        },
+        update: function(id){
+            update3.copyForUpdate(id, "employees")
+            update3.show()
+        },
+        insert: function(){
+            let formData = new FormData()
+            for (let index = 0; index < this.items.length; index++) {
+                var item = this.items[index];
+                formData.append(item, $("#"+item).val())
+            }
+                        
+            axios({
+                method: 'post',
+                url: 'php/addEmployees.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update3.hide()
+                menu.getDatas("employees","")
+            }).catch(function(error){
+                console.log(error+"");
+            });
         }
     }
 })
@@ -197,7 +246,7 @@ var screenB = new Vue({
     el:"#mainScreenB",
     data:{
         vis: false,
-        buyersItems: ["idB", "nameB", "phoneB", "addressB"],
+        items: ["idB", "nameB", "phoneB", "addressB"],
         tableDatas: []
     },
     methods: {
@@ -210,61 +259,246 @@ var screenB = new Vue({
         setTableDatas: function(data){
             this.tableDatas = data;
         },
-        Search: function(table_name, column, input){
+        search: function(table_name, column, input){
             var txt = " WHERE "+column+" LIKE '%" + $(input).val() + "%'";
-                $.ajax({
-                    url:"php/getDatas.php",
-                    method:"POST",
-                    dataType: "json",
-                    data:{table_name:table_name, txt:txt},
-                    success: function(data){
-                        if(data.status == 'ok'){
-                            console.log(table_name+""+txt+"");
-                            console.log(data);
-                            screenB.setTableDatas(data);
-                        }
+            menu.getDatas(table_name, txt)
+        },
+        update: function(id){
+            update2.copyForUpdate(id, "buyers")
+            update2.show()
+        },
+        insert: function(){
+            let formData = new FormData()
+            for (let index = 0; index < this.items.length; index++) {
+                var item = this.items[index];
+                formData.append(item, $("#"+item).val())
+            }
+                        
+            axios({
+                method: 'post',
+                url: 'php/addBuyers.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update2.hide()
+                menu.getDatas("buyers","")
+            }).catch(function(error){
+                console.log(error+"");
+            });
+        }    
+    }
+})
+
+var update = new Vue({
+    el:"#updateForm",
+    data:{
+        vis: false,
+        carItems: ["idU", "bandU", "colorU", "employeeIDU", "priceU"],
+        carColumns: ["id", "band", "color", "employeeID", "price"]
+    },
+    methods:{
+        show: function(){
+            this.vis = true
+        },
+        hide: function(){
+            this.vis = false
+        },
+        copyForUpdate: function(id, screen){
+            for (let index = 0; index < screenC.items.length; index++) {
+                var idText = screenC.items[index]
+               console.log(id+" "+idText+" "+screenC.tableDatas[id][idText])
+               $("#"+this.carItems[index]).val(screenC.tableDatas[id][idText]+"")
+            }
+        },
+        update: function(){
+            table_name = "cars"
+            let formData = new FormData();
+            formData.append("table_name", table_name)
+                    
+                var txt = ""
+                for (let index = 0; index < this.carItems.length; index++) {
+                    if(index > 0){
+                        txt+=","
                     }
-                });
+                    var idText = this.carItems[index]
+                    var columnName = this.carColumns[index]
+                    if(index < 3){
+                        txt+= " "+columnName+" = '"+$("#"+idText).val()+"'"
+                    }
+                    if(index > 2){
+                        txt+= " "+columnName+" = "+$("#"+idText).val()
+                    }
+                }
+                txt+= " WHERE id = "+$("#idU").val()
+                formData.append("txt", txt)
+            
+            axios({
+                method: 'post',
+                url: 'php/update.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update.hide()
+                menu.getDatas(table_name,"")
+            }).catch(function(error){
+                console.log(error+"");
+            });
         }
     }
 })
 
+var update2 = new Vue({
+    el:"#updateForm2",
+    data:{
+        vis: false,
+        humanItems: ["id2U", "nameU", "phoneU", "addressU"],
+        humanColumns: ["id", "name", "phone", "address"]
+    },
+    methods:{
+        show: function(){
+            this.vis = true
+        },
+        hide: function(){
+            this.vis = false
+        },
+        copyForUpdate: function(id, screen){
+            for (let index = 0; index < this.humanColumns.length; index++) {
+                var idText = this.humanColumns[index]
+                console.log(id+" "+idText+" "+screenB.tableDatas[id][idText])
+                $("#"+this.humanItems[index]).val(screenB.tableDatas[id][idText]+"")
+            }
+        },
+        update: function(){
+            table_name = "buyers"
+            let formData = new FormData();
+            formData.append("table_name", table_name)
+            
+                var txt = ""
+                for (let index = 1; index < this.humanItems.length; index++) {
+                    if(index > 1){
+                        txt+=","
+                    }
+                    var idText = this.humanItems[index]
+                    var columnName = this.humanColumns[index]
+                    txt+= " "+columnName+" = '"+$("#"+idText).val()+"'"
+                }
+                txt+= " WHERE id = "+$("#id2U").val()
+                formData.append("txt", txt)
+            console.log(txt);
+            axios({
+                method: 'post',
+                url: 'php/update.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update3.hide()
+                menu.getDatas(table_name,"")
+            }).catch(function(error){
+                console.log(error+"");
+            });
+        }
+    }
+})
+
+var update3 = new Vue({
+    el:"#updateForm3",
+    data:{
+        vis: false,
+        humanItems: ["id3U", "name3U", "phone3U", "address3U"],
+        humanColumns: ["id", "name", "phone", "address"],
+    },
+    methods:{
+        show: function(){
+            this.vis = true
+        },
+        hide: function(){
+            this.vis = false
+        },
+        copyForUpdate: function(id, screen){
+            for (let index = 0; index < this.humanColumns.length; index++) {
+                var idText = this.humanColumns[index]
+                console.log(id+" "+idText+" "+screenE.tableDatas[id][idText])
+                $("#"+this.humanItems[index]).val(screenE.tableDatas[id][idText]+"")
+            }
+        },
+        update: function(){
+            table_name = "employees"
+            let formData = new FormData();
+            formData.append("table_name", table_name)
+            
+                var txt = ""
+                for (let index = 1; index < this.humanItems.length; index++) {
+                    if(index > 1){
+                        txt+=","
+                    }
+                    var idText = this.humanItems[index]
+                    var columnName = this.humanColumns[index]
+                    txt+= " "+columnName+" = '"+$("#"+idText).val()+"'"
+                }
+                txt+= " WHERE id = "+$("#id3U").val()+";"
+                formData.append("txt", txt)
+            
+                console.log(txt);
+            axios({
+                method: 'post',
+                url: 'php/update.php',
+                responseType: 'json',
+                data: formData,
+                config: { headers: {'Content-Type': 'multipart/form-data' }}
+            })
+            .then(function(){
+                update2.hide()
+                menu.getDatas(table_name,"")
+            }).catch(function(error){
+                console.log(error+"");
+            });
+        }
+    }
+})
+
+
 $("#id").keyup(function(){
-    screenC.Search("cars", "id", "#id");
+    screenC.search("cars", "id", "#id");
 });
 $("#band").keyup(function(){    
-    screenC.Search("cars", "band", "#band");
+    screenC.search("cars", "band", "#band");
 });
 $("#employeeID").keyup(function(){    
-    screenC.Search("cars", "employeeID", "#employeeID");
+    screenC.search("cars", "employeeID", "#employeeID");
 });
 $("#color").keyup(function(){
-    screenC.Search("cars", "color", "#color");
+    screenC.search("cars", "color", "#color");
 });
 $("#price").keyup(function(){
-    screenC.Search("cars", "price", "#price");
+    screenC.search("cars", "price", "#price");
 });
 $("#idE").keyup(function(){
-    screenE.Search("employees", "id", "#idE");
+    screenE.search("employees", "id", "#idE");
 });
 $("#name").keyup(function(){
-    screenE.Search("employees", "name", "#name");
+    screenE.search("employees", "name", "#name");
 });
 $("#phone").keyup(function(){
-    screenE.Search("employees", "phone", "#phone");
+    screenE.search("employees", "phone", "#phone");
 });
 $("#address").keyup(function(){
-    screenE.Search("employees", "address", "#address");
+    screenE.search("employees", "address", "#address");
 });
 $("#idB").keyup(function(){
-    screenB.Search("buyers", "id", "#idB");
+    screenB.search("buyers", "id", "#idB");
 });
 $("#nameB").keyup(function(){
-    screenB.Search("buyers", "name", "#nameB");
+    screenB.search("buyers", "name", "#nameB");
 });
 $("#phoneB").keyup(function(){
-    screenB.Search("buyers", "phoneB", "#phoneB");
+    screenB.search("buyers", "phoneB", "#phoneB");
 });
 $("#addressB").keyup(function(){
-    screenB.rSearch("buyers", "address", "#addressB");
+    screenB.search("buyers", "address", "#addressB");
 })

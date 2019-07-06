@@ -5,6 +5,7 @@
         <title>AutóSzalon</title>
         <script src="js/jquery/jquery-2.1.3.min.js"></script>
         <script src="js/vue/vue.min.js"></script>
+        <script src="js/vue/axios.min.js"></script>
         <!--Custom JS-->
 
         <!--Custom CSS-->
@@ -39,68 +40,107 @@
 
             <div id="leftSideMenu" v-show="vis">
                 <div v-for="item in menuItems">
-                    <p v-bind:id="item.id" v-on:click="getDatas(item.id)"> {{item.value}} </p>
+                    <p v-bind:id="item.id" v-on:click="getDatas(item.id, '')"> {{item.value}} </p>
                     <br>
                 </div>
             </div>
-            
-            <div id="mainScreenC" v-show="vis">
-                    <div><form action="php/addCars.php" method="POST"> 
-                        <div class="searchInputsCar" v-for="item in carsItems">
+
+            <div id="updateForm" v-show="vis">
+                <div>
+                    <div class="searchInputsCar" v-for="item in carItems">
+                        <p> {{item}} :</p>
+                    </div>
+                    <br>
+                    <div class="searchInputsCar" v-for="item in carItems">
+                        <input v-bind:id="item" v-bind:name="item" type="text">
+                    </div>
+                    <button v-on:click="update"> Update </button>
+                </div>
+            </div>
+
+            <div id="updateForm2" v-show="vis">
+                <div>
+                    <div class="searchInputsHuman" v-for="item in humanItems">
+                        <p> {{item}} :</p>
+                    </div>
+                    <br>
+                    <div class="searchInputsHuman" v-for="item in humanItems">
+                        <input v-bind:id="item" v-bind:name="item" type="text">
+                    </div>
+                    <button v-on:click="update"> Update </button>
+                </div>
+            </div>
+
+            <div id="updateForm3" v-show="vis">
+                    <div>
+                        <div class="searchInputsHuman" v-for="item in humanItems">
                             <p> {{item}} :</p>
                         </div>
                         <br>
-                        <div class="searchInputsCar" v-for="item in carsItems">
+                        <div class="searchInputsHuman" v-for="item in humanItems">
                             <input v-bind:id="item" v-bind:name="item" type="text">
                         </div>
-                        <button type="submit">Add</button>
-                    </form></div>
-                    <br>
-                    <div>
-                        <div v-for="item in tableDatas">
-                            <p> {{item.id}} {{item.band}} {{item.color}} {{item.employeeID}} {{item.price}} </p>
-                        </div>
-                        <br>
+                        <button v-on:click="update"> Update </button>
                     </div>
                 </div>
-                <div id="mainScreenE" v-show="vis">
-                    <div><form action="php/addEmployees.php" method="POST"> 
-                        <div class="searchInputsHuman" v-for="item in emplItems">
-                            <p> {{item}} :</p>
-                        </div>
-                        <br>
-                        <div class="searchInputsHuman" v-for="item in emplItems">
-                           <input v-bind:id="item" v-bind:name="item" type="text">
-                        </div>
-                        <button type="submit">Add</button>
-                    </form></div>
-                    <br>
-                    <div>
-                        <div v-for="item in tableDatas">
-                            <p> {{item.id}} {{item.name}} {{item.phone}} {{item.address}} </p>
-                        </div>
-                        <br>
+            
+            <div id="mainScreenC" v-show="vis">
+                <div>
+                    <div class="searchInputsCar" v-for="item in items">
+                        <p> {{item}} :</p>
                     </div>
-                </div>
-                <div id="mainScreenB" v-show="vis">
-                    <div><form action="php/addBuyers.php" method="POST"> 
-                        <div class="searchInputsHuman" v-for="item in buyersItems">
-                            <p> {{item}} :</p>
-                        </div>
-                        <br>
-                        <div class="searchInputsHuman" v-for="item in buyersItems">
-                           <input v-bind:id="item" v-bind:name="item" type="text">
-                        </div>
-                        <button type="submit">Add</button>
-                    </form></div>
                     <br>
-                    <div>
-                        <div v-for="item in tableDatas">
-                            <p> {{item.id}} {{item.name}} {{item.phone}} {{item.address}} </p>
-                        </div>
-                        <br>
+                    <div class="searchInputsCar" v-for="item in items">
+                        <input v-bind:id="item" v-bind:name="item" type="text">
                     </div>
+                    <button v-on:click="insert">Add</button>    
                 </div>
+                <br>
+                <div>
+                    <div v-if="index != 'status'" v-for="(item, index) in tableDatas">
+                        <button v-bind:id="index" class="customButton" v-on:click="update(index)">{{item.id}} {{item.band}} {{item.color}} {{item.employeeID}} {{item.price}}   (click for update)</button>
+                    </div>
+                    <br>
+                </div>
+            </div>
+            <div id="mainScreenE" v-show="vis">
+                <div>
+                    <div class="searchInputsHuman" v-for="item in items">
+                        <p> {{item}} :</p>
+                    </div>
+                    <br>
+                    <div class="searchInputsHuman" v-for="item in items">
+                       <input v-bind:id="item" v-bind:name="item" type="text">
+                    </div>
+                    <button v-on:click="insert">Add</button>    
+                </div>
+                <br>
+                <div>
+                    <div v-if="index != 'status'" v-for="(item, index) in tableDatas">
+                        <button v-bind:id="index" class="customButton" v-on:click="update(index)">{{item.id}} {{item.name}} {{item.phone}} {{item.address}}   (click for update)</button>
+                    </div>
+                    <br>
+                </div>
+            </div>
+            <div id="mainScreenB" v-show="vis">
+                <div>
+                    <div class="searchInputsHuman" v-for="item in items">
+                        <p> {{item}} :</p>
+                    </div>
+                    <br>
+                    <div class="searchInputsHuman" v-for="item in items">
+                    <input v-bind:id="item" v-bind:name="item" type="text">
+                    </div>
+                    <button v-on:click="insert">Add</button>                    
+                </div>
+                <br>
+                <div>
+                    <div v-if="index != 'status'" v-for="(item, index) in tableDatas">
+                        <button v-bind:id="index" class="customButton" v-on:click="update(index)">{{item.id}} {{item.name}} {{item.phone}} {{item.address}}   (click for update)</button>
+                    </div>
+                    <br>
+                </div>
+            </div>
         </div>
         <script type="text/javascript" src="js/control.js"></script>
     </body>

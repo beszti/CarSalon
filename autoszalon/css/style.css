@@ -88,9 +88,9 @@ li{
 	float:left;
 	overflow: hidden;
 }
-#mainScreenB, #mainScreenC, #mainScreenE{
+#mainScreenB, #mainScreenC, #mainScreenE,#updateForm,#updateForm2,#updateForm3{
 	width:80%;
-	height:100%;
+	height:auto;
 	float:left;
 	overflow: hidden;
 }
@@ -109,4 +109,8 @@ li{
 	float:left;
 	overflow:hidden;
 	width:25%;
+}
+.overFlow{
+	float:left;
+	overflow:hidden;
 }

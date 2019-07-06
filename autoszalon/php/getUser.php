@@ -1,5 +1,4 @@
 <?php
-	header('Content-Type: application/json');
 	if(!empty($_POST['user_name']) && !empty($_POST['user_pw'])){
 		$data = array();
 
