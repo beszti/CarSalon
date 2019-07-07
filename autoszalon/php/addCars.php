@@ -20,6 +20,4 @@
         $sql = "INSERT INTO cars (band, color, employeeID, price) VALUES ('$band', '$color', '$employeeID', '$price')";
     }
 	mysqli_query($connect, $sql) or die ("Ilyen már létezik, vagy hibás értéket adott meg valamelyik attributumhoz");
-		
-	header("Location: ../index.html");
 ?>

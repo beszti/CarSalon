@@ -19,6 +19,4 @@
         $sql = "INSERT INTO buyers (name, phone, address) VALUES ($name', '$phone', '$address')";
     }
 	mysqli_query($connect, $sql) or die ("Ilyen már létezik, vagy hibás értéket adott meg valamelyik attributumhoz");
-		
-	header("Location: ../index.html");
 ?>
